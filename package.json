@@ -1,0 +1,54 @@
+{
+  "name": "dms-sdk",
+  "version": "0.0.1",
+  "description": "An SDK for integrating with MailSentry's email verification services, designed to facilitate the management of email validation, risk assessment, and real-time data processing through the MailSentry API.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "watch": "tsc --watch",
+    "start": "concurrently \"npm run watch\" \"nodemon ./dist/index.js\"",
+    "test": "vitest",
+    "format": "npx prettier --write .",
+    "format:check": "npx prettier --check .",
+    "coverage": "vitest run --coverage"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  },
+  "keywords": ["mailsentry", "email verification", "sdk", "api", "email security"],
+  "author": "Daniel Agha Babaei",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^29.5.13",
+    "@vitest/coverage-v8": "^2.1.4",
+    "concurrently": "^9.0.1",
+    "husky": "^9.1.6",
+    "joi": "^17.13.3",
+    "nodemon": "^3.1.7",
+    "prettier": "^3.3.3",
+    "pretty-quick": "^4.0.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.2",
+    "vitest": "^2.1.2"
+  },
+  "dependencies": {
+    "happy-dom": "^15.7.4"
+  }
+}

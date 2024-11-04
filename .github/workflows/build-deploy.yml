@@ -1,0 +1,70 @@
+name: Mailsentry.io Build and Deploy
+
+on:
+  workflow_run:
+    workflows: ["Mailsentry.io Test"]
+    types:
+      - completed
+
+jobs:
+  build:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+  
+      - name: Install dependencies
+        run: npm install
+
+      - name: Authenticate npm
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+
+      - name: Build application
+        run: npm run build
+
+      - name: Extract version from package.json
+        id: package_version
+        run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+
+      - name: Create Tag
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag -a v${PACKAGE_VERSION} -m "Release v${PACKAGE_VERSION}"
+          git push origin v${PACKAGE_VERSION}
+
+      - name: Publish to npm
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Zip Release Folder
+        run: |
+          mkdir -p release/mailsentry
+          cp -r dist/* release/mailsentry
+          cd release
+          zip -r mailsentry.zip mailsentry
+
+      - name: Create or Update Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/mailsentry.zip
+          tag_name: v${{ env.PACKAGE_VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
