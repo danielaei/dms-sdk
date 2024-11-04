@@ -1,5 +1,5 @@
 {
-  "name": "mailio",
+  "name": "mail-io-sdk",
   "version": "0.0.1",
   "description": "An SDK for integrating with MailSentry's email verification services, designed to facilitate the management of email validation, risk assessment, and real-time data processing through the MailSentry API.",
   "main": "./dist/index.js",
